@@ -40,7 +40,7 @@ def find_elem_with_sum3_eqto(expenses, match_value = 2020):
     counter = 0
     for i in get_range_in_reverse_order(expenses):
         k = 1; j = 0
-        sum_of_values = expenses[k] + expenses[i] + expenses[j]
+        sum_of_values = get_new_sum_of_expenses(expenses, [i, j, k])
         while( (sum_of_values <= match_value) and (k < i) ):
             counter = counter + 1
             print(f"Current iteration {counter} with (i={i}, k={k}, j={j}), sum: {sum_of_values}")
@@ -48,9 +48,9 @@ def find_elem_with_sum3_eqto(expenses, match_value = 2020):
                 if (sum_of_values == match_value):
                     return ([expenses[i], expenses[k], expenses[j], expenses[k] * expenses[i] * expenses[j]])
                 j = j + 1
-                sum_of_values = expenses[k] + expenses[i] + expenses[j]
+                sum_of_values = get_new_sum_of_expenses(expenses, [i, j, k])
             k = k + 1
-            sum_of_values = expenses[k] + expenses[i] + expenses[j]
+            sum_of_values = get_new_sum_of_expenses(expenses, [i, j, k])
 
 which_elems_part1 = find_elem_with_sum2_eqto(expenses, 2020)
 which_elems_part2 = find_elem_with_sum3_eqto(expenses, 2020)
