@@ -47,7 +47,6 @@ def solve_part_b_per_slope(filename_map, slope):
     n_trees_for_this_slope = traverse_map(map, slope)
     return n_trees_for_this_slope
 
-
 slope = np.array([1, 3])
 map = read_map_as_df('Data/input_day3a_test.txt', slope)
 n_trees_part1_test = traverse_map(map, slope)
@@ -55,8 +54,6 @@ n_trees_part1_test = traverse_map(map, slope)
 slope = np.array([1, 3])
 map = read_map_as_df('Data/input_day3a.txt', slope)
 n_trees_part1 = traverse_map(map, slope)
-
-
 
 list_of_slopes = [np.array([1,1]),
                   np.array([1,3]),
