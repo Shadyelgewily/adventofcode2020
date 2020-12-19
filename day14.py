@@ -78,7 +78,6 @@ class DecoderPartB(Decoder):
     def get_memory_addresses_from_decoded_address(self, decoded_address):
         return [int('0b' + ''.join(a), 2) for a in itertools.product(*decoded_address)]
 
-
 def unit_tests():
     system = BitMaskSystem(DecoderPartA())
     system.process_initialization_program('Data/input_day14_testa.txt')
