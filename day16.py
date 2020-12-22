@@ -1,7 +1,9 @@
 import numpy as np
 from operator import itemgetter
+import itertools
 import ipdb
-
+from operator import mul
+from functools import reduce
 class TicketTranslation():
     def __init__(self):
         self.rules = {}
@@ -46,15 +48,47 @@ class TicketTranslation():
             if(len(ix_invalid) > 0):
                 self.invalid_tickets.append(ix)
                 self.invalid_values.append(itemgetter(*np.array(ix_invalid))(ticket))
+        self.valid_tickets = [t for ix, t in enumerate(self.nearby_tickets) if ix not in self.invalid_tickets]
+
+    def set_correct_ordering_of_rules(self):
+        valid_rules_per_field = self.calc_valid_rules_per_field()
+        self.ordered_rules = self.calc_correct_ordering_of_rules(valid_rules_per_field)
+
+    def calc_valid_rules_per_field(self):
+        considered_tickets = [self.my_ticket] + self.valid_tickets
+        values_per_field = list(zip(*considered_tickets))
+        field_values_rules_combis = list(itertools.product(values_per_field, self.rules.values()))
+        result_field_values_rules_combis = np.array([set(field_vals).issubset(set(rule)) for field_vals, rule in field_values_rules_combis])
+        result_matrix = result_field_values_rules_combis.reshape(len(values_per_field), len(self.rules))
+        valid_rules_per_field = np.apply_along_axis(lambda x: set(np.where(x == True)[0]), 1, result_matrix)
+        return valid_rules_per_field
+
+    def calc_correct_ordering_of_rules(self, valid_rules_per_field):
+        ordered_rules = dict()
+        known_rules = set()
+        while len(known_rules) < len(self.rules):
+            ordered_rules.update({key: val - known_rules for key, val in enumerate(valid_rules_per_field) if len(set(val - known_rules)) == 1})
+            known_rules = {next(iter(rule)) for rule in ordered_rules.values()}
+        return {key: list(self.rules.keys())[next(iter(val))] for key, val in ordered_rules.items()}
 
     def get_scanning_error_rate(self):
         return sum(self.invalid_values)
+
+    def get_prod_of_departure_fields(self):
+        departure_fields = [field_ix for field_ix, rule in self.ordered_rules.items() if 'departure' in rule]
+        return reduce(mul, itemgetter(*departure_fields)(self.my_ticket))
 
 def unit_tests():
     ticket_translation = TicketTranslation()
     ticket_translation.read_notes('Data/input_day16_testa.txt')
     ticket_translation.scan_invalid_tickets()
+    ticket_translation.set_correct_ordering_of_rules()
     assert ticket_translation.get_scanning_error_rate() == 71
+
+    ticket_translation = TicketTranslation()
+    ticket_translation.read_notes('Data/input_day16_testb.txt')
+    ticket_translation.scan_invalid_tickets()
+    ticket_translation.set_correct_ordering_of_rules()
 
 #unit_tests()
 
@@ -62,4 +96,5 @@ ticket_translation = TicketTranslation()
 ticket_translation.read_notes('Data/input_day16.txt')
 ticket_translation.scan_invalid_tickets()
 answer_part_a = ticket_translation.get_scanning_error_rate()
-
+ticket_translation.set_correct_ordering_of_rules()
+answer_part_b = ticket_translation.get_prod_of_departure_fields()
